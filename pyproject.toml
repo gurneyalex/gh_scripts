@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "github-repositories-tool"
+version = "0.1.0"
+description = "CLI tool to export GitHub organisation repositories to CSV"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Proprietary" }
+authors = [
+  { name = "Your Name" }
+]
+
+dependencies = [
+  "PyGithub>=2,<3",
+]
+
+[project.optional-dependencies]
+# Example: pip install github-repositories-tool[dev]
+# dev = ["pytest", "mypy", "black"]
+
+[project.scripts]
+# Installs a console command `github-repositories`
+# that runs the main() function from github_repositories.py
+github-repositories = "github_repositories:main"
+
+[tool.setuptools]
+# Since we have a single top-level module file (github_repositories.py)
+# and not a package directory, declare it here.
+py-modules = ["github_repositories"]
