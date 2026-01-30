@@ -25,8 +25,9 @@ dependencies = [
 # Installs a console command `github-repositories`
 # that runs the main() function from github_repositories.py
 github-repositories = "github_repositories:main"
+github-repositories-update = "github_repository_update:main"
 
 [tool.setuptools]
-# Since we have a single top-level module file (github_repositories.py)
-# and not a package directory, declare it here.
-py-modules = ["github_repositories"]
+# Since we have top-level module files and not a package directory,
+# declare them here.
+py-modules = ["github_repositories", "github_repository_update", "utils"]

@@ -3,10 +3,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 import csv
-import os
 import sys
 
 from github import Github
+from .utils import _build_github_client
 
 
 @dataclass
@@ -41,22 +41,6 @@ class RepositoryInfo:
     archived: bool
     topics: List[str]
     teams: Dict[str, str]
-
-
-def _build_github_client() -> Github:
-    """Build a Github client using the GITHUB_TOKEN env var when available.
-
-    Falls back to unauthenticated access if no token is configured.
-    """
-
-    token = os.getenv("GITHUB_TOKEN")
-    if token:
-        return Github(token)
-    else:
-        with open("/home/afayolle/.github_token2") as f:
-            token = f.read().strip()
-        return Github(token)
-    return Github()
 
 
 def retrieve_github_repositories(organisation: str) -> List[RepositoryInfo]:
