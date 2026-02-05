@@ -135,7 +135,7 @@ def make_repositories_csv(organisation: str, csv_filename: str) -> None:
         writer.writeheader()
         count = 0
         for repo in repositories:
-            count+= 1
+            count += 1
             topics_str = ";".join(repo.topics)
             teams_str = ";".join(
                 f"{team}:{permission}" for team, permission in repo.teams.items()

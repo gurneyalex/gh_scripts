@@ -7,7 +7,7 @@ from typing import Dict, List, Tuple
 
 from github import Github, GithubException
 
-from utils import _build_github_client, setup_logging
+from .utils import _build_github_client, setup_logging
 
 
 @dataclass
@@ -121,7 +121,7 @@ def update_repository(org, name: str, updates: RepositoryUpdate) -> None:
         "GS": "geospatial",
         "IS": "infrastructure",
         "BS": "business",
-        "c2c": "camptocamp"
+        "c2c": "camptocamp",
     }
 
     try:
@@ -142,7 +142,7 @@ def update_repository(org, name: str, updates: RepositoryUpdate) -> None:
             exc,
         )
         raise
-    
+
     # Skip updates for already-archived repositories.
     if getattr(repo, "archived", False):
         logger.warning(
