@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "Proprietary" }
 authors = [
-  { name = "Your Name" }
+  { name = "Alexandre Fayolle <alexandre.fayolle@camptocamp.com>" }
 ]
 
 dependencies = [
