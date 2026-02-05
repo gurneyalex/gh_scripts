@@ -5,7 +5,7 @@ from typing import Dict, List
 import csv
 import sys
 
-from .utils import _build_github_client
+from .utils import _build_github_client, setup_logging
 
 
 @dataclass
@@ -44,6 +44,7 @@ def retrieve_github_users(organisation: str) -> List[UserInfo]:
     within the organisation to which the user has access.
     """
 
+    logger = setup_logging()
     github_client = _build_github_client()
     org = github_client.get_organization(organisation)
 
@@ -60,6 +61,7 @@ def retrieve_github_users(organisation: str) -> List[UserInfo]:
             teams=[],
             repositories=[],  # kept empty for internal users
         )
+        logger.info("Created internal user info for '%s'", login)
 
     # Outside collaborators (external users).
     for collaborator in org.get_outside_collaborators():
@@ -72,6 +74,7 @@ def retrieve_github_users(organisation: str) -> List[UserInfo]:
             teams=[],
             repositories=[],
         )
+        logger.info("Created external user info for '%s'", login)
 
     # Populate team membership for all known users.
     for team in org.get_teams():
