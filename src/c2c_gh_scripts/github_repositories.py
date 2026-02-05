@@ -63,48 +63,38 @@ def retrieve_github_repositories(organisation: str) -> List[RepositoryInfo]:
     github_client = _build_github_client()
 
     org = github_client.get_organization(organisation)
-    # Use the paginated list returned by PyGithub; this includes archived
-    # repositories by default when type="all".
-    paginated_repos = org.get_repos(type="all")
+    # org.get_repos returns a PaginatedList that transparently handles
+    # pagination as we iterate over it.
+    for repo in org.get_repos(type="all"):
+        print(repo.name)
+        # Collect topics and team permissions.
+        topics = list(repo.get_topics())
 
-    page_index = 0
-    while True:
-        page = paginated_repos.get_page(page_index)
-        if not page:
-            break
+        teams: Dict[str, str] = {}
+        for team in repo.get_teams():
+            # Prefer the "permission" attribute when available.
+            permission: Optional[str] = getattr(team, "permission", None)
 
-        for repo in page:
-            print(repo.name)
-            # Collect topics and team permissions.
-            topics = list(repo.get_topics())
+            # Fallback: derive from the permissions dict if necessary.
+            if permission is None and hasattr(team, "permissions"):
+                perms = getattr(team, "permissions") or {}
+                for level in ("admin", "maintain", "push", "triage", "pull"):
+                    if perms.get(level):
+                        permission = level
+                        break
 
-            teams: Dict[str, str] = {}
-            for team in repo.get_teams():
-                # Prefer the "permission" attribute when available.
-                permission: Optional[str] = getattr(team, "permission", None)
+            teams[team.name] = permission or "unknown"
 
-                # Fallback: derive from the permissions dict if necessary.
-                if permission is None and hasattr(team, "permissions"):
-                    perms = getattr(team, "permissions") or {}
-                    for level in ("admin", "maintain", "push", "triage", "pull"):
-                        if perms.get(level):
-                            permission = level
-                            break
-
-                teams[team.name] = permission or "unknown"
-
-            yield RepositoryInfo(
-                name=repo.name,
-                description=repo.description,
-                private=repo.private,
-                fork=repo.fork,
-                url=repo.html_url,
-                archived=repo.archived,
-                topics=topics,
-                teams=teams,
-            )
-
-        page_index += 1
+        yield RepositoryInfo(
+            name=repo.name,
+            description=repo.description,
+            private=repo.private,
+            fork=repo.fork,
+            url=repo.html_url,
+            archived=repo.archived,
+            topics=topics,
+            teams=teams,
+        )
 
 
 def make_repositories_csv(organisation: str, csv_filename: str) -> None:
