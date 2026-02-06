@@ -80,6 +80,7 @@ def retrieve_github_users(organisation: str) -> List[UserInfo]:
     for team in org.get_teams():
         for member in team.get_members():
             login = member.login
+            logger.info("Checking team '%s' for user %s", team.name, login)
             user = users.get(login)
             if user is not None and team.name not in user.teams:
                 user.teams.append(team.name)
@@ -88,6 +89,7 @@ def retrieve_github_users(organisation: str) -> List[UserInfo]:
     for repo in org.get_repos(type="all"):
         for collaborator in repo.get_collaborators():
             login = collaborator.login
+            logger.info("Checking repository '%s' for user %s", repo.name, login)
             user = users.get(login)
             if user is not None and not user.internal:
                 if repo.name not in user.repositories:
