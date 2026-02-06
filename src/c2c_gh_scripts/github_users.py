@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Set
 import csv
 import sys
 
@@ -29,8 +29,8 @@ class UserInfo:
     name: str
     email: str
     internal: bool
-    teams: List[str]
-    repositories: List[str]
+    teams: Set[str]
+    repositories: Set[str]
 
 
 def retrieve_github_users(organisation: str) -> List[UserInfo]:
@@ -58,8 +58,8 @@ def retrieve_github_users(organisation: str) -> List[UserInfo]:
             name=login,
             email=email,
             internal=True,
-            teams=[],
-            repositories=[],  # kept empty for internal users
+            teams=set(),
+            repositories=set(),  # kept empty for internal users
         )
         logger.info("Created internal user info for '%s'", login)
 
@@ -71,8 +71,8 @@ def retrieve_github_users(organisation: str) -> List[UserInfo]:
             name=login,
             email=email,
             internal=False,
-            teams=[],
-            repositories=[],
+            teams=set(),
+            repositories=set(),
         )
         logger.info("Created external user info for '%s'", login)
 
@@ -82,8 +82,8 @@ def retrieve_github_users(organisation: str) -> List[UserInfo]:
             login = member.login
             logger.info("Checking team '%s' for user %s", team.name, login)
             user = users.get(login)
-            if user is not None and team.name not in user.teams:
-                user.teams.append(team.name)
+            if user is not None:
+                user.teams.add(team.name)
 
     # Populate repositories for external users only.
     for repo in org.get_repos(type="all"):
@@ -92,8 +92,7 @@ def retrieve_github_users(organisation: str) -> List[UserInfo]:
             logger.info("Checking repository '%s' for user %s", repo.name, login)
             user = users.get(login)
             if user is not None and not user.internal:
-                if repo.name not in user.repositories:
-                    user.repositories.append(repo.name)
+                user.repositories.add(repo.name)
 
     return list(users.values())
 
@@ -123,8 +122,8 @@ def make_users_csv(organisation: str, csv_filename: str) -> None:
         writer.writeheader()
 
         for user in users:
-            teams_str = ";".join(user.teams)
-            repos_str = ";".join(user.repositories)
+            teams_str = ";".join(sorted(user.teams))
+            repos_str = ";".join(sorted(user.repositories))
 
             writer.writerow(
                 {
